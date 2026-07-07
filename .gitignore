@@ -1,0 +1,51 @@
+# ---- Python / backend ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Node / frontend (Expo / React Native) ----
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# ---- Model weights (live on Hugging Face, NOT in git) ----
+models/*
+!models/.gitkeep
+*.pt
+*.pth
+*.onnx
+*.h5
+*.ckpt
+*.safetensors
+
+# ---- Credentials / secrets (NEVER commit) ----
+kaggle.json
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+secrets/
+credentials/
+*credentials*.json
+*service-account*.json
+
+# ---- OS / editor cruft ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
