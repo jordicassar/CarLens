@@ -1,0 +1,3 @@
+# Trained model weights land in this folder at runtime.
+# The folder is tracked (via this file) but its contents are gitignored —
+# weights live on the Hugging Face model hub, not in git.
