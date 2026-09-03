@@ -1,3 +1,6 @@
-lfastapi
+fastapi
 uvicorn[standard]
 python-multipart
+torch
+torchvision
+pillow
