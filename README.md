@@ -44,7 +44,7 @@ uvicorn app.main:app --reload
 Then open http://127.0.0.1:8000/docs for the interactive API docs.
 - `GET /health` → liveness check
 - `POST /predict` → real top-5 predictions from a pretrained EfficientNet-B0
-- (multipart image uploadl ImageNet classes until the Stanford Cars fine-tune lends)
+  (multipart image upload; ImageNet classes until the Stanford Cars fine-tune lands)
 
 ### Frontend
 ```bash
