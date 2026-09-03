@@ -1,11 +1,14 @@
 # CarLens
+![CI](https://github.com/jordicassar/CarLens/actions/workflows/ci.yml/badge.svg)
+
+
 A full-stack ML app that classifies car make and model from a photo. EfficientNet/ResNet transfer learning (PyTorch, trained on Stanford Cars in Colab) served through a FastAPI inference endpoint on Hugging Face Spaces, with a React Native (Expo) mobile front end.
 
 ## Architecture
 
 ```
 CarLens/
-├── backend/      FastAPI inference service (stubbed /predict)
+├── backend/      FastAPI inference service (ImageNet baseline; fine-tune pending)
 ├── frontend/     React Native (Expo) app — one screen for now
 ├── notebooks/    Pointer to the Colab training work (no training code here)
 ├── models/       Trained weights land here at runtime — gitignored, live on HF
@@ -40,7 +43,8 @@ uvicorn app.main:app --reload
 ```
 Then open http://127.0.0.1:8000/docs for the interactive API docs.
 - `GET /health` → liveness check
-- `POST /predict` → returns **fake** top-5 predictions (multipart image upload)
+- `POST /predict` → real top-5 predictions from a pretrained EfficientNet-B0
+- (multipart image uploadl ImageNet classes until the Stanford Cars fine-tune lends)
 
 ### Frontend
 ```bash
