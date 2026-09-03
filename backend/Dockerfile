@@ -1,14 +1,20 @@
 FROM python:3.13-slim
 
-WORKDIR /app
+RUN useradd -m -u 1000 user
+USER user
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH \
+    TORCH_HOME=/home/user/.cache/torch
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
+WORKDIR $HOME/app
+
+COPY --chown=user requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt \
         --extra-index-url https://download.pytorch.org/whl/cpu
 
-COPY app/ ./app/
+COPY --chown=user app/ ./app/
 
-# Bake the weights into the image so cold starts don't stall on a download
+# Weights now cache under /home/user, readable at runtime
 RUN python -c "import app.predictor"
 
 EXPOSE 7860
