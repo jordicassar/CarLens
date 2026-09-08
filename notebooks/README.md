@@ -6,19 +6,19 @@ Colab gives us a free GPU and keeps the ~2GB Stanford Cars dataset off local dis
 ## What lives in Colab (not here)
 
 - **Data**: downloading the [Stanford Cars](https://ai.stanford.edu/~jkrause/cars/car_dataset.html)
-  dataset via the Kaggle API. Your `kaggle.json` credential is **never** committed —
-  it's uploaded into the Colab session at runtime (and is gitignored here as a safeguard).
+  dataset via the Kaggle API. Your `kaggle.json` credential is **never** committed.
+  It's uploaded into the Colab session at runtime (and is gitignored here as a safeguard).
 - **Training**: transfer learning with a pretrained EfficientNet / ResNet backbone,
   fine-tuned on the Stanford Cars classes.
-- **Export**: the trained weights (`.pt`/`.pth`) and the class-index → label map,
+- **Export**: the trained weights (`.pt`/`.pth`) and the class-index to label map,
   pushed to the Hugging Face model hub. The FastAPI backend pulls them from there.
 
 ## Colab links
 
 > Add the shareable Colab notebook URL(s) here once training starts.
 
-- Training notebook: _TODO — paste Colab link_
-- Data prep notebook: _TODO — paste Colab link (or fold into training)_
+- Training notebook: _TODO: paste Colab link_
+- Data prep notebook: _TODO: paste Colab link (or fold into training)_
 
 ## Workflow
 

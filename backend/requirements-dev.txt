@@ -1,3 +1,10 @@
 pytest
 httpx
 ruff
+
+# Export-time only: used by export_onnx.py and verify_onnx.py to produce
+# and validate app/efficientnet_b0.onnx. Never shipped to production.
+torch
+torchvision
+onnx
+onnxscript
