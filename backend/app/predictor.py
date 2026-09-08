@@ -29,8 +29,8 @@ def _preprocess(image: Image.Image) -> np.ndarray:
 
     # Center-crop 224x224
     w, h = image.size
-    left = int(round((w - CROP_SIZE) / 2.0))
-    top = int(round((h - CROP_SIZE) / 2.0))
+    left = round((w - CROP_SIZE) / 2.0)
+    top = round((h - CROP_SIZE) / 2.0)
     image = image.crop((left, top, left + CROP_SIZE, top + CROP_SIZE))
 
     # HWC uint8 -> normalized CHW float32, plus batch dim
