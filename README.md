@@ -2,6 +2,13 @@
 
 ![CI](https://github.com/jordicassar/CarLens/actions/workflows/ci.yml/badge.svg)
 
+**[Try the live demo](https://carlens-qmnn.onrender.com/)** &nbsp;·&nbsp;
+[API docs](https://carlens-qmnn.onrender.com/docs)
+
+> Hosted on Render's free tier, which spins the container down after about
+> 15 minutes of inactivity. The first request after an idle period takes
+> 30 to 60 seconds to wake it. Subsequent requests respond in under a second.
+
 A full-stack image classification app. A FastAPI service runs an EfficientNet-B0
 image classifier and returns the top-5 predictions for an uploaded photo, with a
 React Native (Expo) client planned on top of it.
@@ -20,8 +27,8 @@ tested first so that swapping in the fine-tuned weights is a single-file change.
 | 1. Scaffold: monorepo, CI, tests | Done |
 | 2. Train: fine-tune on Stanford Cars in Colab | Not started |
 | 3. Inference: real `/predict` endpoint | Done (ImageNet baseline) |
-| 4. Frontend: image picker and results screen | Not started |
-| 5. Deploy: public hosted endpoint | Not started |
+| 4. Frontend: image picker and results screen | Web page done, Expo app not started |
+| 5. Deploy: public hosted endpoint | Done (Render, free tier) |
 
 ## How inference works
 
