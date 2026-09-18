@@ -1,8 +1,10 @@
 import logging
 import time
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from PIL import UnidentifiedImageError
 
 from app.predictor import predict
@@ -11,8 +13,15 @@ logger = logging.getLogger("carlens")
 
 MAX_UPLOAD_BYTES = 8 * 1024 * 1024
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
+INDEX_HTML = Path(__file__).parent / "static" / "index.html"
 
 app = FastAPI(title="CarLens", version="0.1.0")
+
+
+@app.get("/", include_in_schema=False)
+def index():
+    return FileResponse(INDEX_HTML)
+
 
 @app.get("/health")
 def health():

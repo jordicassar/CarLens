@@ -12,6 +12,13 @@ def _jpeg_bytes(size=(256, 256), color=(120, 130, 140)):
     Image.new("RGB", size, color).save(buf, format="JPEG")
     return buf.getvalue()
 
+def test_index_serves_html():
+    r = client.get("/")
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/html")
+    assert "CarLens" in r.text
+
+
 def test_health():
     r = client.get("/health")
     assert r.status_code == 200
