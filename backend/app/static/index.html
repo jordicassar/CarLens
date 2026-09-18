@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CarLens</title>
+<style>
+  :root {
+    --bg: #fbfbfd;
+    --surface: #ffffff;
+    --border: #e3e3e8;
+    --text: #16161a;
+    --muted: #6b6b76;
+    --accent: #2f6fed;
+    --accent-soft: #e8effd;
+    --bar-bg: #eeeef2;
+    --warn-bg: #fff8e6;
+    --warn-border: #f0dda6;
+    --error: #c0392b;
+    --radius: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121215;
+      --surface: #1a1a1f;
+      --border: #2e2e36;
+      --text: #f0f0f3;
+      --muted: #9a9aa6;
+      --accent: #6d9bff;
+      --accent-soft: #1e2a45;
+      --bar-bg: #26262e;
+      --warn-bg: #2a2417;
+      --warn-border: #4d422a;
+      --error: #ff7a6b;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 48px 16px 64px;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main { max-width: 680px; margin: 0 auto; }
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+  }
+
+  .tagline { margin: 0 0 28px; color: var(--muted); }
+
+  .note {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    margin-bottom: 28px;
+  }
+  .note strong { display: block; margin-bottom: 4px; }
+
+  #drop {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 44px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  #drop:hover, #drop.over {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  #drop p { margin: 0; }
+  #drop .primary { font-weight: 600; margin-bottom: 4px; }
+  #drop .hint { color: var(--muted); font-size: 0.875rem; }
+
+  input[type=file] { display: none; }
+
+  #panel { margin-top: 28px; display: none; }
+  #panel.visible { display: block; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  #preview {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background: var(--bar-bg);
+  }
+
+  .status { color: var(--muted); font-size: 0.9rem; }
+  .status.error { color: var(--error); }
+
+  .row { margin-bottom: 14px; }
+  .row:last-child { margin-bottom: 0; }
+
+  .row-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 5px;
+  }
+  .label { font-weight: 500; }
+  .row.top .label { color: var(--accent); font-weight: 650; }
+  .pct { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 0.9rem; }
+
+  .bar { height: 7px; background: var(--bar-bg); border-radius: 4px; overflow: hidden; }
+  .bar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.45;
+    border-radius: 4px;
+    transition: width .35s ease;
+  }
+  .row.top .bar span { opacity: 1; }
+
+  .meta {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  a { color: var(--accent); }
+
+  .spinner {
+    display: inline-block;
+    width: 13px; height: 13px;
+    margin-right: 7px;
+    vertical-align: -2px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<main>
+  <h1>CarLens</h1>
+  <p class="tagline">Upload a photo and the model returns its five most likely guesses.</p>
+
+  <div class="note">
+    <strong>This is an ImageNet baseline, not a car identifier yet.</strong>
+    It recognises broad categories like <em>sports car</em>, <em>pickup</em> or
+    <em>convertible</em>, and it will confidently label non-cars too. Fine-tuning
+    on the Stanford Cars dataset to predict specific makes, models and years is
+    the next phase.
+  </div>
+
+  <div id="drop" role="button" tabindex="0" aria-label="Choose a photo">
+    <p class="primary">Drop a photo here, or click to choose one</p>
+    <p class="hint">JPEG, PNG or WebP &middot; up to 8&nbsp;MB</p>
+  </div>
+  <input type="file" id="file" accept="image/jpeg,image/png,image/webp">
+
+  <section id="panel">
+    <div class="card">
+      <img id="preview" alt="Uploaded photo">
+      <div id="status" class="status"></div>
+      <div id="results"></div>
+    </div>
+  </section>
+
+  <footer>
+    FastAPI and ONNX Runtime, EfficientNet-B0. &middot;
+    <a href="/docs">API docs</a> &middot;
+    <a href="https://github.com/jordicassar/CarLens">Source on GitHub</a>
+  </footer>
+</main>
+
+<script>
+  const drop = document.getElementById('drop');
+  const input = document.getElementById('file');
+  const panel = document.getElementById('panel');
+  const preview = document.getElementById('preview');
+  const status = document.getElementById('status');
+  const results = document.getElementById('results');
+
+  drop.addEventListener('click', () => input.click());
+  drop.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+  });
+
+  ['dragenter', 'dragover'].forEach(evt =>
+    drop.addEventListener(evt, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(evt =>
+    drop.addEventListener(evt, e => { e.preventDefault(); drop.classList.remove('over'); }));
+
+  drop.addEventListener('drop', e => {
+    if (e.dataTransfer.files.length) handle(e.dataTransfer.files[0]);
+  });
+  input.addEventListener('change', () => {
+    if (input.files.length) handle(input.files[0]);
+  });
+
+  async function handle(file) {
+    panel.classList.add('visible');
+    results.innerHTML = '';
+    preview.src = URL.createObjectURL(file);
+    status.className = 'status';
+    status.innerHTML = '<span class="spinner"></span>Analysing&hellip;';
+
+    const body = new FormData();
+    body.append('file', file);
+
+    try {
+      const res = await fetch('/predict', { method: 'POST', body });
+
+      if (!res.ok) {
+        const detail = await res.json().catch(() => ({}));
+        status.className = 'status error';
+        status.textContent = message(res.status, detail.detail);
+        return;
+      }
+
+      const data = await res.json();
+      status.textContent = '';
+      render(data);
+    } catch (err) {
+      status.className = 'status error';
+      status.textContent = 'Could not reach the server. Check your connection and try again.';
+    }
+  }
+
+  function message(code, detail) {
+    if (code === 415) return 'That file type is not supported. Use a JPEG, PNG or WebP image.';
+    if (code === 413) return 'That image is larger than the 8 MB limit. Try a smaller one.';
+    if (code === 400) return 'That file could not be read as an image.';
+    return detail || 'Something went wrong. Please try again.';
+  }
+
+  function render(data) {
+    results.innerHTML = data.predictions.map((p, i) => `
+      <div class="row ${i === 0 ? 'top' : ''}">
+        <div class="row-head">
+          <span class="label">${escapeHtml(p.label)}</span>
+          <span class="pct">${(p.confidence * 100).toFixed(1)}%</span>
+        </div>
+        <div class="bar"><span style="width:${Math.max(p.confidence * 100, 0.5)}%"></span></div>
+      </div>
+    `).join('');
+
+    const conf = data.predictions[0].confidence;
+    const caveat = conf < 0.25
+      ? ' The model is not confident here, so these are weak guesses.'
+      : '';
+    results.insertAdjacentHTML('beforeend',
+      `<p class="meta">Inference took ${data.latency_ms} ms.${caveat}</p>`);
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+</script>
+</body>
+</html>
