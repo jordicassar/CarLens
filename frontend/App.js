@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -58,14 +59,12 @@ export default function App() {
     setError(null);
     setLoading(true);
 
-    const name = asset.fileName ?? 'photo.jpg';
-    const ext = name.split('.').pop().toLowerCase();
-    const type =
-      ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
-
     const upload = () => {
+      // SDK 57's fetch only accepts real Blobs in FormData, not the old
+      // React Native { uri, name, type } object. File is a Blob, and it
+      // reads its name and MIME type from the file on disk.
       const form = new FormData();
-      form.append('file', { uri: asset.uri, name, type });
+      form.append('file', new File(asset.uri));
       return fetch(`${API_URL}/predict`, { method: 'POST', body: form });
     };
 
@@ -75,8 +74,9 @@ export default function App() {
       let res;
       try {
         res = await upload();
-      } catch {
+      } catch (err) {
         // No response at all, usually the server still waking. Retry once.
+        console.warn('Upload failed, retrying:', err?.message ?? err);
         await wait(RETRY_DELAY_MS);
         res = await upload();
       }
@@ -87,7 +87,8 @@ export default function App() {
         return;
       }
       setResult(await res.json());
-    } catch {
+    } catch (err) {
+      console.warn('Upload failed after retry:', err?.message ?? err);
       setError('Could not reach the server. Check your connection and try again.');
     } finally {
       clearTimeout(slowTimer);
