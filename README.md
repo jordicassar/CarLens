@@ -27,7 +27,7 @@ tested first so that swapping in the fine-tuned weights is a single-file change.
 | 1. Scaffold: monorepo, CI, tests | Done |
 | 2. Train: fine-tune on Stanford Cars in Colab | Not started |
 | 3. Inference: real `/predict` endpoint | Done (ImageNet baseline) |
-| 4. Frontend: image picker and results screen | Web page done, Expo app not started |
+| 4. Frontend: image picker and results screen | Done (web page and Expo app) |
 | 5. Deploy: public hosted endpoint | Done (Render, free tier) |
 
 ## How inference works
@@ -58,6 +58,7 @@ CarLens/
 │   ├── app/
 │   │   ├── main.py                    FastAPI routes and upload validation
 │   │   ├── predictor.py               ONNX Runtime inference, NumPy preprocessing
+│   │   ├── static/index.html          landing page served at /
 │   │   ├── efficientnet_b0.onnx       exported graph
 │   │   ├── efficientnet_b0.onnx.data  exported weights
 │   │   └── labels.json                1000 ImageNet class names
@@ -67,7 +68,7 @@ CarLens/
 │   ├── Dockerfile                     runs as UID 1000, listens on 7860
 │   ├── requirements.txt               runtime only, no PyTorch
 │   └── requirements-dev.txt           tests, lint, and export tooling
-├── frontend/                          Expo app, still the starter template
+├── frontend/App.js                    Expo app: picker, upload, results
 ├── notebooks/                         pointer to the Colab training work
 └── .github/workflows/ci.yml           ruff and pytest on push and PR
 ```
@@ -145,14 +146,33 @@ identical top-5 against PyTorch.
 
 ## Frontend
 
+There are two clients, both talking to the same `/predict` endpoint.
+
+**Web.** `backend/app/static/index.html` is served at `/` by FastAPI. It is a
+single self-contained page with no build step and no dependencies: drop in a
+photo, see the top-5 with confidence bars.
+
+**Mobile.** A React Native app built with Expo (SDK 57).
+
 ```bash
 cd frontend
 npm install
 npx expo start
 ```
 
-Currently the unmodified Expo starter template. Wiring it to `/predict` is
-phase 4.
+Scan the QR code with Expo Go. On networks that isolate clients, such as campus
+Wi-Fi, use `npx expo start --tunnel` instead.
+
+The app picks a photo from the library or the camera, uploads it, and renders
+the same top-5 view as the web page. Two details worth noting:
+
+- It pings `/health` on launch, because the free tier sleeps when idle. The
+  server is usually awake by the time a photo has been chosen. A failed upload
+  is retried once, and the spinner explains the wait after four seconds.
+- Uploads are sent as an `expo-file-system` `File`. Expo SDK 57 replaces the
+  global `fetch` with a standards-compliant implementation that accepts only
+  real Blobs in `FormData`, so the older React Native `{ uri, name, type }`
+  object fails with "Unsupported FormDataPart implementation".
 
 ## Notebooks
 
