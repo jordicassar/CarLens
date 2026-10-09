@@ -47,4 +47,6 @@ def test_rejects_oversized_upload():
     r = client.post("/predict", files={"file": ("big.jpg", big, "image/jpeg")})
     assert r.status_code == 413
 
-
+def test_predict_flags_uncertainty():
+    r = client.post("/predict", files={"file": ("car.jpg", _jpeg_bytes(), "image/jpeg")})
+    assert r.json()["uncertain"] is True
