@@ -8,7 +8,7 @@ from PIL import Image
 
 _HERE = Path(__file__).parent
 
-_session = ort.InferenceSession(str(_HERE / "efficientnet_b0.onnx"))
+_session = ort.InferenceSession(str(_HERE / "carlens_b0.onnx"))
 _labels = json.loads((_HERE / "labels.json").read_text())
 
 RESIZE_SIZE = 256

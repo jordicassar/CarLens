@@ -9,24 +9,29 @@
 > 15 minutes of inactivity. The first request after an idle period takes
 > 30 to 60 seconds to wake it. Subsequent requests respond in under a second.
 
-A full-stack image classification app. A FastAPI service runs an EfficientNet-B0
-image classifier and returns the top-5 predictions for an uploaded photo, with a
-React Native (Expo) client planned on top of it.
+A full-stack image classification app. A FastAPI service identifies the make,
+model and year of a car from a photo and returns the top-5 predictions, with a
+web page and a React Native (Expo) client on top of it.
 
-The model currently served is the stock **ImageNet-1k** EfficientNet-B0, so it
-returns generic categories such as `sports car` or `pickup` rather than specific
-makes and models. Fine-tuning on
-[Stanford Cars](https://ai.stanford.edu/~jkrause/cars/car_dataset.html) to get
-make/model/year predictions is the next phase. The serving pipeline is built and
-tested first so that swapping in the fine-tuned weights is a single-file change.
+The model is an EfficientNet-B0 fine-tuned on
+[Stanford Cars](https://ai.stanford.edu/~jkrause/cars/car_dataset.html), which
+covers **196 classes** at the granularity of `Ferrari 458 Italia Coupe 2012`.
+It reaches **0.671 top-1 and 0.886 top-5** on the held-out test split. Training
+runs in Google Colab; serving runs on ONNX Runtime with no PyTorch in the
+container.
+
+Every class in the dataset is a 2012 or earlier model, and the model always
+returns a prediction, so a newer or unusual vehicle will still produce a
+confident-looking answer. See [Evaluation](#evaluation) for what it gets wrong
+and why.
 
 ## Status
 
 | Phase | State |
 | --- | --- |
 | 1. Scaffold: monorepo, CI, tests | Done |
-| 2. Train: fine-tune on Stanford Cars in Colab | Not started |
-| 3. Inference: real `/predict` endpoint | Done (ImageNet baseline) |
+| 2. Train: fine-tune on Stanford Cars in Colab | Done (test top-1 0.671, top-5 0.886) |
+| 3. Inference: real `/predict` endpoint | Done |
 | 4. Frontend: image picker and results screen | Done (web page and Expo app) |
 | 5. Deploy: public hosted endpoint | Done (Render, free tier) |
 
@@ -34,10 +39,11 @@ tested first so that swapping in the fine-tuned weights is a single-file change.
 
 Training and serving are deliberately separated, and they do not share a runtime.
 
-**PyTorch is used only at export time.** `backend/export_onnx.py` loads
-EfficientNet-B0 and writes out an ONNX graph plus the ImageNet label map.
-`backend/verify_onnx.py` then checks that the exported graph agrees with the
-original PyTorch model (max absolute difference is on the order of `1e-6`).
+**PyTorch is used only for training and export.** The Colab notebook in
+[notebooks/](notebooks/) fine-tunes EfficientNet-B0 and exports an ONNX graph
+plus the 196-class label map, after checking that the exported graph agrees
+with the PyTorch model it came from (max absolute difference on the order of
+`1e-6`).
 
 **ONNX Runtime is what actually serves requests.** `backend/app/predictor.py`
 imports no PyTorch at all. It loads the `.onnx` graph, applies the preprocessing
@@ -59,9 +65,9 @@ CarLens/
 │   │   ├── main.py                    FastAPI routes and upload validation
 │   │   ├── predictor.py               ONNX Runtime inference, NumPy preprocessing
 │   │   ├── static/index.html          landing page served at /
-│   │   ├── efficientnet_b0.onnx       exported graph
-│   │   ├── efficientnet_b0.onnx.data  exported weights
-│   │   └── labels.json                1000 ImageNet class names
+│   │   ├── carlens_b0.onnx            exported graph
+│   │   ├── carlens_b0.onnx.data       exported weights
+│   │   └── labels.json                196 Stanford Cars class names
 │   ├── tests/test_api.py              API contract and rejection paths
 │   ├── export_onnx.py                 produces the .onnx artifact
 │   ├── verify_onnx.py                 checks it against PyTorch
@@ -96,11 +102,11 @@ Example response:
 ```json
 {
   "predictions": [
-    {"label": "sports car", "confidence": 0.7708},
-    {"label": "car wheel", "confidence": 0.0343},
-    {"label": "racer", "confidence": 0.0322},
-    {"label": "grille", "confidence": 0.0176},
-    {"label": "convertible", "confidence": 0.0097}
+    {"label": "Ferrari 458 Italia Coupe 2012", "confidence": 0.8142},
+    {"label": "Ferrari 458 Italia Convertible 2012", "confidence": 0.0913},
+    {"label": "Ferrari California Convertible 2012", "confidence": 0.0241},
+    {"label": "Lamborghini Gallardo LP 570-4 Superleggera 2012", "confidence": 0.0118},
+    {"label": "McLaren MP4-12C Coupe 2012", "confidence": 0.0076}
   ],
   "latency_ms": 44.7
 }

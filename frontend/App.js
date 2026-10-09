@@ -108,8 +108,8 @@ export default function App() {
             Pick a photo and the model returns its five most likely guesses.
           </Text>
           <Text style={styles.note}>
-            This is an ImageNet baseline, so it recognises broad categories like
-            "sports car" rather than specific makes and models.
+            Fine-tuned on Stanford Cars: 196 makes and models, all 2012 or earlier.
+            Top-1 67%, top-5 89%. Newer cars will still get a confident guess.
           </Text>
 
           <View style={styles.buttons}>

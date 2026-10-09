@@ -33,7 +33,7 @@ models/*
 
 # The exported ONNX graph is a build input, not training output: the service
 # cannot start without it, so it is committed alongside its external weights.
-!backend/app/efficientnet_b0.onnx
+!backend/app/carlens_b0.onnx
 
 # ---- Credentials / secrets (NEVER commit) ----
 kaggle.json
