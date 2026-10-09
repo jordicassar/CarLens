@@ -6,9 +6,8 @@ from typing import Annotated
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from PIL import UnidentifiedImageError
-from app.predictor import CONFIDENCE_THRESHOLD, predict
 
-from app.predictor import predict
+from app.predictor import CONFIDENCE_THRESHOLD, predict
 
 logger = logging.getLogger("carlens")
 
