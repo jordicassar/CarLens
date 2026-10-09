@@ -17,7 +17,7 @@ _MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
 _STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
 
 TOP_K = 5
-
+CONFIDENCE_THRESHOLD = 0.25
 
 def _preprocess(image: Image.Image) -> np.ndarray:
     # Shortest side to 256, aspect ratio preserved, bicubic

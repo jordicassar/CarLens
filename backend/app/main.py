@@ -6,6 +6,7 @@ from typing import Annotated
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from PIL import UnidentifiedImageError
+from app.predictor import CONFIDENCE_THRESHOLD, predict
 
 from app.predictor import predict
 
@@ -49,5 +50,9 @@ async def predict_endpoint(file: Annotated[UploadFile, File()]):
     elapsed_ms = (time.perf_counter() - started) * 1000
 
     logger.info("predict ok bytes=%d ms=%.1f", len(image_bytes), elapsed_ms)
-    return {"predictions": predictions, "latency_ms": round(elapsed_ms, 1)}
+    return {
+        "predictions": predictions,
+        "uncertain": predictions[0]["confidence"] < CONFIDENCE_THRESHOLD,
+        "latency_ms": round(elapsed_ms, 1),
+    }
 
