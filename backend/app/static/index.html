@@ -170,11 +170,11 @@
   <p class="tagline">Upload a photo and the model returns its five most likely guesses.</p>
 
   <div class="note">
-    <strong>This is an ImageNet baseline, not a car identifier yet.</strong>
-    It recognises broad categories like <em>sports car</em>, <em>pickup</em> or
-    <em>convertible</em>, and it will confidently label non-cars too. Fine-tuning
-    on the Stanford Cars dataset to predict specific makes, models and years is
-    the next phase.
+    <strong>Fine-tuned on the Stanford Cars dataset.</strong>
+      It recognises 196 specific makes and models, all 2012 or earlier.
+      Top-1 accuracy 67%, top-5 89%. Cars outside those 196 classes will
+      still get a confident-looking guess, since the model has no way to
+      say "I don't know".
   </div>
 
   <div id="drop" role="button" tabindex="0" aria-label="Choose a photo">
